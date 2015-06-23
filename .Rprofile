@@ -1,1 +1,0 @@
-setwd("/home/djain/Projects/Incubator/Physical Activity Recognition/Human_activity_recognition")
