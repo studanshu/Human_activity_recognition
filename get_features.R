@@ -65,8 +65,13 @@ std <-function( window, train = TRUE ){
 
 zcr <- function( signal ){
   signSignal = sign(signal)
-  z = head(signSignal, n=-1) - tail(signSignal, n=-1)
-  return( sum(z != 0) )
+  if(length(signSignal) > 1){
+    z = head(signSignal, n=-1) - tail(signSignal, n=-1)
+    return( sum(z != 0) )  
+  }
+  else{
+    return(0)
+  }
 }
 
 zcross <- function( window, train = TRUE ){
