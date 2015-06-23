@@ -7,12 +7,12 @@ fetch_train_data <- function()
   classes <- list.dirs(path='data', recursive = FALSE, full.names = FALSE)
   
   train_data = list()
-  for ( i in (1:length(paths)) ){
+  for ( i in seq_along(paths) ){
     
     files <- list.files(path=paths[[i]], recursive = FALSE, full.names = TRUE)
     activity_data = list()
     
-    for ( j in (1:length(files)) ){
+    for ( j in seq_along(files) ){
       data = read.csv(files[[j]], header=FALSE, sep=';')[c( TRUE, rep(FALSE,249)),] 
       data$V1 <- data$V1/1000
       data$V1 <- as.POSIXct(data$V1, origin="1970-01-01")

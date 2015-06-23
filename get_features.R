@@ -1,11 +1,5 @@
-source("fetch_training_data.R")
-source("helper.R")
 
-get_training_samples <- function(){
-  
-  train_data <- fetch_train_data()
-
-  # visualize(train_data$sit[[1]], 'V1', c('V2', 'V3', 'V4'))
+get_training_samples <- function( train_data ){
 
   classes = names(train_data)
   
@@ -13,11 +7,11 @@ get_training_samples <- function(){
   
   # Get training samples(windows) from the training data (2 minute windows with 1 minute overlap)
   
-  for (i in (1:length(train_data))){
+  for (i in seq_along(train_data)){
     
     train_samples[[classes[[i]]]] <- list()
     
-    for(j in (1:length(train_data[[i]]))){
+    for(j in seq_along(train_data[[i]])){
       
       groups = cut(train_data[[i]][[j]]$V1, breaks = "2 min")
       samples <- split(train_data[[i]][[j]], groups)
@@ -89,9 +83,39 @@ zcross <- function( window, train = TRUE ){
   }
 }
 
-get_features <- function( samples, train = TRUE){
+get_window_features <- function( samples, train = TRUE){
   
   # Get features for each 2 minute sample/window
+  
+  if( train ){
+    featureSet <- data.frame(matrix(ncol = 13))
+  }
+  else{
+    featureSet <- data.frame(matrix(ncol = 12))
+  }
+  
+  for ( i in seq_along(samples) ){
+    windows <- samples[[i]]
+    for ( j in seq_along(windows) ){
+      window <- windows[[j]]
+      row <- c( avg(window, train), variance(window, train), std(window, train), zcross(window, train) )
+      if( train ){
+        row <- c( row, i ); 
+      }
+      featureSet <- rbind( featureSet, row )
+    }
+  }
+  row.names(featureSet) <- NULL
+  colNames <- c('meanx', 'meany', 'meanz', 'variancex', 'variancey', 'variancez', 'stdx', 'stdy', 'stdz', 'zcrossx', 'zcrossy', 'zcrossz')
+  if( train ){
+    colNames <- c( colNames, 'class')
+  }
+  colnames(featureSet) <- colNames
+  return( featureSet )
+  
+}
+
+get_instantaneous_features <- function( data, train = TRUE ){
   
   if( train ){
     featureSet <- data.frame(meanx=numeric(),
@@ -100,12 +124,6 @@ get_features <- function( samples, train = TRUE){
                              variancex=numeric(),
                              variancey=numeric(),
                              variancez=numeric(),
-                             stdx=numeric(),
-                             stdy=numeric(),
-                             stdz=numeric(),
-                             zcrossx=numeric(),
-                             zcrossy=numeric(),
-                             zcrossz=numeric(),
                              class=numeric(),
                              stringsAsFactors=FALSE )
   }
@@ -116,25 +134,37 @@ get_features <- function( samples, train = TRUE){
                              variancex=numeric(),
                              variancey=numeric(),
                              variancez=numeric(),
-                             stdx=numeric(),
-                             stdy=numeric(),
-                             stdz=numeric(),
-                             zcrossx=numeric(),
-                             zcrossy=numeric(),
-                             zcrossz=numeric(),
                              stringsAsFactors=FALSE )
   }
   
-  for ( i in (1:length(samples)) ){
-    windows <- samples[[i]]
-    for ( j in (1:length(windows)) ){
-      window <- windows[[j]]
-      row <- c( avg(window, train), variance(window, train), std(window, train), zcross(window, train) )
+  for (i in seq_along(data)){
+    for(j in seq_along(data[[i]]) ){
+      signal <- data[[i]][[j]]
+      n <- nrow(signal)
+      if(n<5) break;
+      signal$time <- as.numeric(signal$V1)
+      
+      f1 <- loess( V2 ~ time, span = 0.5, signal )
+      meanx = predict( f1, signal )
+      variancex = abs( signal$V2 - meanx )
+      f2 <- loess( V3 ~ time, span = 0.5, signal )
+      meany = predict( f2, signal )
+      variancey = abs( signal$V3 - meany )
+      f3 <- loess( V4 ~ time, span = 0.5, signal )
+      meanz = predict( f3, signal )
+      variancez = abs( signal$V4 - meanz )
+      
+      m <- cbind(meanx, meany, meanz, variancex, variancey, variancez)
+      
       if( train ){
-        row <- c( row, i ); 
+        class = rep(i, n)  
+        m <- cbind(m, class)
       }
-      featureSet = rbind( featureSet, row )
+      
+      featureSet <- rbind( featureSet, m )
+      
     }
   }
-  return( featureSet )
+  row.names(featureSet) <- NULL
+  return(featureSet)
 }
