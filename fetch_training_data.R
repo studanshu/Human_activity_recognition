@@ -13,9 +13,11 @@ fetch_train_data <- function()
     activity_data = list()
     
     for ( j in seq_along(files) ){
-      data = read.csv(files[[j]], header=FALSE, sep=';')[c( TRUE, rep(FALSE,249)),] 
-      data$V1 <- data$V1/1000
-      data$V1 <- as.POSIXct(data$V1, origin="1970-01-01")
+      data = read.csv(files[[j]], header=FALSE, sep=';')
+      #data = data[,3:ncol(data)-1]
+      #write.table(data, file=files[[j]], sep=';', row.names = FALSE, col.names = FALSE)
+      data$time <- data$V1/1000
+      data$date <- as.POSIXct(data$time, origin="1970-01-01")
       activity_data[[j]] <- data
     }
     

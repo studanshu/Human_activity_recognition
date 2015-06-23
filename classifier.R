@@ -4,11 +4,11 @@ source("helper.R")
 source("train.R")
 library("rpart")
 
-classify <- function(test_sample, method = 'window'){
+classify <- function(test_sample = NULL, method = 'window'){
   
   if( method == 'window' ){
-    if( file.exists('win_classifier.RData') ){
-      classifier = load('win_classifier.RData')
+    if( file.exists('objects/win_classifier.RData') ){
+      classifier = load('objects/win_classifier.RData')
     }
     else{
       classifier = train('window')
@@ -17,8 +17,8 @@ classify <- function(test_sample, method = 'window'){
   }
 
   else if( method == 'inst' ){
-    if( file.exists('inst_classifier.RData') ){
-      classifier = load('inst_classifier.RData')
+    if( file.exists('objects/inst_classifier.RData') ){
+      classifier = load('objects/inst_classifier.RData')
     }
     else{
       classifier = train('inst')
@@ -26,5 +26,5 @@ classify <- function(test_sample, method = 'window'){
     features <- get_inst_features(test_sample, train=FALSE)
   }
   
-  return(class)
+  #return(class)
 }

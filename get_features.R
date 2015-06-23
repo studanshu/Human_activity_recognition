@@ -13,7 +13,7 @@ get_training_samples <- function( train_data ){
     
     for(j in seq_along(train_data[[i]])){
       
-      groups = cut(train_data[[i]][[j]]$V1, breaks = "2 min")
+      groups = cut(train_data[[i]][[j]]$date, breaks = "2 min")
       samples <- split(train_data[[i]][[j]], groups)
       train_samples[[classes[[i]]]] <- c( train_samples[[classes[[i]]]], samples )
       
@@ -115,7 +115,7 @@ get_window_features <- function( samples, train = TRUE){
   
 }
 
-get_instantaneous_features <- function( data, train = TRUE ){
+get_inst_features <- function( data, train = TRUE ){
   
   if( train ){
     featureSet <- data.frame(meanx=numeric(),
@@ -142,7 +142,6 @@ get_instantaneous_features <- function( data, train = TRUE ){
       signal <- data[[i]][[j]]
       n <- nrow(signal)
       if(n<5) break;
-      signal$time <- as.numeric(signal$V1)
       
       f1 <- loess( V2 ~ time, span = 0.5, signal )
       meanx = predict( f1, signal )
