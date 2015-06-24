@@ -27,25 +27,23 @@ fetch_data <- function(data_path='data')
   return(train_data)
 }
 
-fetch_test_data <- function(db_name = "test", data_table = "DataCollection_sensor")
+fetch_test_data <- function(db_name = "test", data_table = "DataCollection_sensor", user = "")
 {
   con <- dbConnect(RMySQL::MySQL(), group = db_name)
   
-  data <- dbReadTable(con, data_table)
-  as.POSIXct(data$time, tz="")
-  
-  sensor_data = data[which(data$sensor == '1' & data$username == sit_user),]
-  write.csv(sensor_data, file = "data/sensor_data.csv", row.names=FALSE)
-  
-  sit_data = data[which(data$time>sit_time_start & data$time<sit_time_end & data$sensor == '1' & data$username == sit_user),]
-  write.csv(sit_data, file = "data/sit_data.csv", row.names=FALSE)
-  
-  sleep_data = data[which(data$time>sleep_time_start & data$time<sleep_time_end & data$sensor == '1' & data$username == sleep_user),]
-  write.csv(sleep_data, file = "data/sleep_data.csv", row.names=FALSE)
-  
-  walk_data = data[which(data$time>walk_time_start & data$time<walk_time_end & data$sensor == '1' & data$username == walk_user),]
-  write.csv(walk_data, file = "data/walk_data.csv", row.names=FALSE)
-  
-  test_data = list('sensor' = sensor_data, 'sit' = sit_data, 'sleep' = sleep_data, 'walk' = walk_data)
-  return(test_data)
+  query = paste0("SELECT * FROM ", data_table, " WHERE username = '", user,"' AND sensor = '1' ;") 
+  res<-dbSendQuery(con, query)
+  data <- fetch(res, n = -1)
+  data$date <- as.POSIXct(data$time, tz="")
+  data$time <- as.numeric(data$date)
+  data$V1 <- data$time
+  names(data)[names(data)=="value1"] <- "V2"
+  names(data)[names(data)=="value2"] <- "V3"
+  names(data)[names(data)=="value3"] <- "V4"
+  print(str(data))
+  test <- list()
+  test[[1]] <- list()
+  test[[1]][[1]] <- data
+  dbDisconnect(con)
+  return(test)
 }

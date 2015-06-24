@@ -1,32 +1,32 @@
 
-get_training_samples <- function( train_data ){
+get_samples <- function( data ){
 
-  classes = names(train_data)
+  classes = names(data)
   
-  train_samples <- list()
+  samples <- list()
   
-  # Get training samples(windows) from the training data (2 minute windows with 1 minute overlap)
+  # Get samples(windows) from the data (2 minute windows with 1 minute overlap)
   
-  for (i in seq_along(train_data)){
+  for (i in seq_along(data)){
     
-    train_samples[[classes[[i]]]] <- list()
+    samples[[classes[[i]]]] <- list()
     
-    for(j in seq_along(train_data[[i]])){
+    for(j in seq_along(data[[i]])){
       
-      groups = cut(train_data[[i]][[j]]$date, breaks = "2 min")
-      samples <- split(train_data[[i]][[j]], groups)
-      train_samples[[classes[[i]]]] <- c( train_samples[[classes[[i]]]], samples )
+      groups = cut(data[[i]][[j]]$date, breaks = "2 min")
+      samples <- split(data[[i]][[j]], groups)
+      samples[[classes[[i]]]] <- c( samples[[classes[[i]]]], samples )
       
       groups = as.POSIXct(groups)
       groups = groups + 60
-      samples <- split(train_data[[i]][[j]], groups)
-      train_samples[[classes[[i]]]] <- c( train_samples[[classes[[i]]]], samples )
+      curr_samples <- split(data[[i]][[j]], groups)
+      samples[[classes[[i]]]] <- c( samples[[classes[[i]]]], curr_samples )
       
     }
     
   }
   
-  return(train_samples)
+  return(samples)
   
 }
 
