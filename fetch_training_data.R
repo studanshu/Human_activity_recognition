@@ -1,10 +1,10 @@
 require("RMySQL")
 source("helper.R")
 
-fetch_train_data <- function()
+fetch_data <- function(data_path='data')
 {
-  paths <- list.dirs(path='data', recursive = FALSE)
-  classes <- list.dirs(path='data', recursive = FALSE, full.names = FALSE)
+  paths <- list.dirs(path=data_path, recursive = FALSE)
+  classes <- list.dirs(path=data_path, recursive = FALSE, full.names = FALSE)
   
   train_data = list()
   for ( i in seq_along(paths) ){
