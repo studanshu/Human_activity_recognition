@@ -40,7 +40,6 @@ fetch_test_data <- function(db_name = "test", data_table = "DataCollection_senso
   names(data)[names(data)=="value1"] <- "V2"
   names(data)[names(data)=="value2"] <- "V3"
   names(data)[names(data)=="value3"] <- "V4"
-  print(str(data))
   test <- list()
   test[[1]] <- list()
   test[[1]][[1]] <- data
