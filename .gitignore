@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 .my.cnf
+data/*
+test_data/*
