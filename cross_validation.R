@@ -1,11 +1,11 @@
 ## Usage:
 
-# train_data <- fetch_data()
+# train_data <- fetch_train_data()
 # features <- get_inst_features(train_data)
 # result <- crossval(class ~ ., features)
 
 source('get_features.R')
-source('fetch_training_data.R')
+source('fetch_data.R')
 library("rpart")
 
 crossval <- function(form, x, fold = 10, cp = 0.01) {
@@ -30,3 +30,8 @@ crossval <- function(form, x, fold = 10, cp = 0.01) {
   cv <- data.frame(Accuracy = avg.accuracy, Error = avg.error)
   return(cv)
 }
+
+train_data <- fetch_train_data()
+features <- get_inst_features(train_data)
+features <- features[sample(nrow(features)),]
+result <- crossval(class ~ ., features)

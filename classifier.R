@@ -1,4 +1,4 @@
-source("fetch_training_data.R")
+source("fetch_data.R")
 source("get_features.R")
 source("helper.R")
 source("train.R")
