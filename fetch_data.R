@@ -1,5 +1,6 @@
 require("RMySQL")
 source("helper.R")
+require("ggplot2")
 
 fetch_train_data <- function(data_path='data')
 {
@@ -19,6 +20,19 @@ fetch_train_data <- function(data_path='data')
       data$time <- data$V1/1000
       data$date <- as.POSIXct(data$time, origin="1970-01-01")
       activity_data[[j]] <- data
+      
+      # visualize
+#       p <- ggplot(data=data, aes(x=time)) +
+#         geom_line(aes(y=V2, color="x"), size = 1, lineend = "round") +
+#         geom_line(aes(y=V3, color="y"), size = 1, lineend = "round") +
+#         geom_line(aes(y=V4, color="z"), size = 1, lineend = "round") +
+#         scale_color_manual("",
+#                            breaks = c("x", "y", "z"),
+#                            values = c("blue", "red", "green")) +
+#         theme_bw(base_size=14) +
+#         ggtitle(files[[j]])
+#       print(p)
+      
     }
     
     train_data[[classes[[i]]]] <- activity_data
@@ -27,22 +41,48 @@ fetch_train_data <- function(data_path='data')
   return(train_data)
 }
 
-fetch_test_data <- function(db_name = "test", data_table = "DataCollection_sensor", user = "")
+fetch_test_data <- function(db_name = "test", user = NULL)
 {
+  
+  # Connect to mysql server
   con <- dbConnect(RMySQL::MySQL(), group = db_name)
   
-  query = paste0("SELECT * FROM ", data_table, " WHERE username = '", user,"' AND sensor = '1' ;") 
-  res<-dbSendQuery(con, query)
-  data <- fetch(res, n = -1)
-  data$date <- as.POSIXct(data$time, tz="")
-  data$time <- as.numeric(data$date)
-  data$V1 <- data$time
-  names(data)[names(data)=="value1"] <- "V2"
-  names(data)[names(data)=="value2"] <- "V3"
-  names(data)[names(data)=="value3"] <- "V4"
-  test <- list()
-  test[[1]] <- list()
-  test[[1]][[1]] <- data
+  if( is.null(user) ){
+    # Get accelerometer data of the users
+    query = paste0("SELECT * FROM DataCollection_sensor WHERE username in (SELECT username FROM user_after_launched ) AND sensor = '1' ORDER BY username, time;") 
+    res<-dbSendQuery(con, query)
+    test_data <- fetch(res, n = -1)
+    
+    # Get session info for the users
+    query = paste0("SELECT id, sensor, username FROM DataCollection_sensor WHERE username in (SELECT username FROM user_after_launched ) AND sensor in ( 'OnPauseStart', 'OnResumeStart' ) ORDER BY username, time;") 
+    res<-dbSendQuery(con, query)
+    stop_list <- fetch(res, n = -1)
+    
+    # Get list of unique users
+    users <- unique(stops$username)
+    
+    test <- list()
+    
+    for( i in seq_along(users) ){
+      print(users[[i]])
+#       stops <- subset(stop_list, stop_list$username == users[[i]])
+#       test[[users[[i]]]] <- list()
+#       for( j in seq(1,nrow(stops),2) ){
+#         lowid <- stops[j,1]
+#         highid <- stops[j+1,1]
+#         data <- subset( test_data, test_data$username == users[[i]] & test_data$id > lowid & test_data$id < highid )
+#         data$date <- as.POSIXct(data$time, tz="")
+#         data$time <- as.numeric(data$date)
+#         data$V1 <- data$time
+#         names(data)[names(data)=="value1"] <- "V2"
+#         names(data)[names(data)=="value2"] <- "V3"
+#         names(data)[names(data)=="value3"] <- "V4"
+#         test[[users[[i]]]][[j]] <- data
+#       }
+    }
+  }
+  
   dbDisconnect(con)
+  
   return(test)
 }
