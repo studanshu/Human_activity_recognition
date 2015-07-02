@@ -57,8 +57,8 @@ std <-function( window, train = TRUE ){
   }
 }
 
-zcr <- function( signal ){
-  signSignal = sign(signal)
+zcr <- function( signal, mean = 0 ){
+  signSignal = sign(signal - mean)
   if(length(signSignal) > 1){
     z = head(signSignal, n=-1) - tail(signSignal, n=-1)
     return( sum(z != 0) )  
@@ -70,15 +70,9 @@ zcr <- function( signal ){
 
 zcross <- function( window, train = TRUE ){
   if( train ){
-    window$V1 <- scale( window$V1 )
-    window$V2 <- scale( window$V2 )
-    window$V3 <- scale( window$V3 )
     return( c(zcr(window$V2), zcr(window$V3), zcr(window$V4)) )
   }
   else{
-    window$value1 <- scale( window$value1 )
-    window$value2 <- scale( window$value2 )
-    window$value3 <- scale( window$value3 )
     return( c(zcr(window$value1), zcr(window$value2), zcr(window$value3)) )
   }
 }
@@ -129,6 +123,9 @@ get_inst_features <- function( data, train = TRUE ){
                              differencex=numeric(),
                              differencey=numeric(),
                              differencez=numeric(),
+                             zcrossx=numeric(),
+                             zcrossy=numeric(),
+                             zcrossz=numeric(),
                              class=numeric(),
                              stringsAsFactors=FALSE )
   }
@@ -142,6 +139,9 @@ get_inst_features <- function( data, train = TRUE ){
                              differencex=numeric(),
                              differencey=numeric(),
                              differencez=numeric(),
+                             zcrossx=numeric(),
+                             zcrossy=numeric(),
+                             zcrossz=numeric(),
                              stringsAsFactors=FALSE )
   }
   
@@ -155,18 +155,21 @@ get_inst_features <- function( data, train = TRUE ){
       variancex = abs( signal$V2 - meanx )
       differencex = abs( head(signal$V2, n=-1) - tail(signal$V2, n=-1) )
       differencex[[length(differencex) + 1]] = differencex[[length(differencex)]]
+      zcrossx = zcr( signal$V2, meanx )
       f2 <- loess( V3 ~ time, span = 0.5, signal )
       meany = predict( f2, signal )
       variancey = abs( signal$V3 - meany )
       differencey = abs( head(signal$V3, n=-1) - tail(signal$V3, n=-1) )
       differencey[[length(differencey) + 1]] = differencey[[length(differencey)]]
+      zcrossy = zcr( signal$V3, meany )
       f3 <- loess( V4 ~ time, span = 0.5, signal )
       meanz = predict( f3, signal )
       variancez = abs( signal$V4 - meanz )
       differencez = abs( head(signal$V4, n=-1) - tail(signal$V4, n=-1) )
       differencez[[length(differencez) + 1]] = differencez[[length(differencez)]]
+      zcrossz = zcr( signal$V4, meanz )
       
-      m <- cbind(meanx, meany, meanz, variancex, variancey, variancez, differencex, differencey, differencez)
+      m <- cbind(meanx, meany, meanz, variancex, variancey, variancez, differencex, differencey, differencez, zcrossx, zcrossy, zcrossz)
       
       if( train ){
         class = rep(i, n)  
