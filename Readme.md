@@ -3,8 +3,8 @@
 
 ##Usage
 
-- ./test.R [username]
-- e.g. : ./test.R 62DO3QLGX3
+- ./main.R [username]
+- e.g. : ./main.R 62DO3QLGX3
 
 ##Dependencies
 
