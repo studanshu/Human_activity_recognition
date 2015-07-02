@@ -147,7 +147,7 @@ get_inst_features <- function( data, train = TRUE ){
     for(j in seq_along(data[[i]]) ){
       signal <- data[[i]][[j]]
       n <- nrow(signal)
-      if( n < 5 ) break
+      if( n < 5 ) next
       f1 <- loess( V2 ~ time, span = 0.5, signal )
       meanx = predict( f1, signal )
       variancex = abs( signal$V2 - meanx )

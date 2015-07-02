@@ -41,49 +41,29 @@ fetch_train_data <- function(data_path='data')
   return(train_data)
 }
 
-fetch_test_data <- function(db_name = "test", user = NULL)
+fetch_test_data <- function(db_name = "test", user =  NULL, lowid, highid)
 {
   
   # Connect to mysql server
   con <- dbConnect(RMySQL::MySQL(), group = db_name)
   
-  if( is.null(user) ){
-    # Get accelerometer data of the users
-    query = paste0("SELECT * FROM DataCollection_sensor WHERE username in (SELECT username FROM user_after_launched ) AND sensor = '1' ORDER BY username, time;") 
-    res<-dbSendQuery(con, query)
-    test_data <- fetch(res, n = -1)
-    
-    # Get session info for the users
-    query = paste0("SELECT id, sensor, username FROM DataCollection_sensor WHERE username in (SELECT username FROM user_after_launched ) AND sensor in ( 'OnResumeStart' ) ORDER BY username, time;") 
-    res<-dbSendQuery(con, query)
-    stop_list <- fetch(res, n = -1)
-    
-    # Get list of unique users
-    users <- unique(stop_list$username)
-    
-    users <- c('RData')
-      
-    test <- list()
-    
-    for( i in seq_along(users) ){
-      print(users[[i]])
-      stops <- subset(stop_list, stop_list$username == users[[i]])
-      test[[users[[i]]]] <- list()
-      for( j in seq(1,nrow(stops)) ){
-        lowid <- stops[j,1]
-        highid <- stops[j+1,1]
-        data <- subset( test_data, test_data$username == users[[i]] & test_data$id > lowid & test_data$id < highid )
-        data$date <- as.POSIXct(data$time, tz="")
-        data$time <- as.numeric(data$date)
-        data$V1 <- data$time
-        names(data)[names(data)=="value1"] <- "V2"
-        names(data)[names(data)=="value2"] <- "V3"
-        names(data)[names(data)=="value3"] <- "V4"
-        test[[users[[i]]]][[j]] <- data
-       }
-    }
-  }
+  # Get accelerometer data of the user
+  query = paste0("SELECT * FROM DataCollection_sensor WHERE username = '", user ,"'  AND sensor = '1' ORDER BY username, time;") 
+  res<-dbSendQuery(con, query)
+  test_data <- fetch(res, n = -1)
   
+  test <- list()
+  test[[user]] <- list()
+  
+  data <- subset( test_data, test_data$id > lowid & test_data$id < highid )
+  data$date <- as.POSIXct(data$time, tz="")
+  data$time <- as.numeric(data$date)
+  data$V1 <- data$time
+  names(data)[names(data)=="value1"] <- "V2"
+  names(data)[names(data)=="value2"] <- "V3"
+  names(data)[names(data)=="value3"] <- "V4"
+  test[[user]][[1]] <- data
+    
   dbDisconnect(con)
   
   return(test)

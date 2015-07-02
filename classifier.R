@@ -1,15 +1,9 @@
-source("fetch_data.R")
 source("get_features.R")
 source("helper.R")
 source("train.R")
 library("rpart")
 
-classify <- function(method = 'window', user=NULL){
-  
-  if( is.null(user) )
-    test_sample <- fetch_test_data()
-  else
-    test_sample <- fetch_test_data( user=user )
+classify <- function(method = 'window', test_sample){
       
   if( method == 'window' ){
     if( file.exists('objects/win_classifier.RData') ){
