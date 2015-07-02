@@ -1,6 +1,6 @@
 
 get_samples <- function( data ){
-
+  
   classes = names(data)
   
   samples <- list()
@@ -124,6 +124,9 @@ get_inst_features <- function( data, train = TRUE ){
                              variancex=numeric(),
                              variancey=numeric(),
                              variancez=numeric(),
+                             differencex=numeric(),
+                             differencey=numeric(),
+                             differencez=numeric(),
                              class=numeric(),
                              stringsAsFactors=FALSE )
   }
@@ -134,6 +137,9 @@ get_inst_features <- function( data, train = TRUE ){
                              variancex=numeric(),
                              variancey=numeric(),
                              variancez=numeric(),
+                             differencex=numeric(),
+                             differencey=numeric(),
+                             differencez=numeric(),
                              stringsAsFactors=FALSE )
   }
   
@@ -145,14 +151,20 @@ get_inst_features <- function( data, train = TRUE ){
       f1 <- loess( V2 ~ time, span = 0.5, signal )
       meanx = predict( f1, signal )
       variancex = abs( signal$V2 - meanx )
+      differencex = abs( head(signal$V2, n=-1) - tail(signal$V2, n=-1) )
+      differencex[[length(differencex) + 1]] = differencex[[length(differencex)]]
       f2 <- loess( V3 ~ time, span = 0.5, signal )
       meany = predict( f2, signal )
       variancey = abs( signal$V3 - meany )
+      differencey = abs( head(signal$V3, n=-1) - tail(signal$V3, n=-1) )
+      differencey[[length(differencey) + 1]] = differencey[[length(differencey)]]
       f3 <- loess( V4 ~ time, span = 0.5, signal )
       meanz = predict( f3, signal )
       variancez = abs( signal$V4 - meanz )
+      differencez = abs( head(signal$V4, n=-1) - tail(signal$V4, n=-1) )
+      differencez[[length(differencez) + 1]] = differencez[[length(differencez)]]
       
-      m <- cbind(meanx, meany, meanz, variancex, variancey, variancez)
+      m <- cbind(meanx, meany, meanz, variancex, variancey, variancez, differencex, differencey, differencez)
       
       if( train ){
         class = rep(i, n)  
