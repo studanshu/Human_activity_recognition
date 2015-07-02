@@ -3,6 +3,7 @@ source("helper.R")
 source("train.R")
 require('RMySQL')
 source("fetch_data.R")
+require('rjson')
 library("rpart")
 
 classify <- function(method = 'window', test_sample){
@@ -55,5 +56,5 @@ main_classifier <- function( user ){
   
   dbDisconnect(con)
   
-  return( result )  
+  return( toJSON(result) )
 }
