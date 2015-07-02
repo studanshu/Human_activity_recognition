@@ -1,6 +1,6 @@
 require("RMySQL")
 source("helper.R")
-require("ggplot2")
+# require("ggplot2")
 
 fetch_train_data <- function(data_path='data')
 {

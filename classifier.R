@@ -1,6 +1,8 @@
 source("get_features.R")
 source("helper.R")
 source("train.R")
+require('RMySQL')
+source("fetch_data.R")
 library("rpart")
 
 classify <- function(method = 'window', test_sample){
@@ -30,4 +32,28 @@ classify <- function(method = 'window', test_sample){
   ctable <- table(cdis)
   class <- ctable / n
   return(class)
+}
+
+main_classifier <- function( user ){
+  
+  db_name = 'test'
+  con <- dbConnect(RMySQL::MySQL(), group = db_name)
+  
+  result <- list()
+  
+  # Get session info for the user
+  query = paste0("SELECT id, sensor, username FROM DataCollection_sensor WHERE username = '", user ,"'  AND sensor in ( 'OnResumeStart' ) ORDER BY username, time;") 
+  res<-dbSendQuery(con, query)
+  stops <- fetch(res, n = -1)
+  
+  for( j in seq(1,nrow(stops)) ){
+    lowid <- stops[j,1]
+    highid <- stops[j+1,1]
+    test_sample <- fetch_test_data( user = user, lowid = lowid, highid = highid )
+    result[[j]] = classify(method='inst', test_sample )
+  }
+  
+  dbDisconnect(con)
+  
+  return( result )  
 }
