@@ -118,6 +118,8 @@ get_window_features <- function( samples, train = TRUE){
 get_inst_features <- function( data, train = TRUE ){
   
   if( train ){
+    classes = names(data)
+    levels = 1:length(data)
     featureSet <- data.frame(meanx=numeric(),
                              meany=numeric(),
                              meanz=numeric(),
@@ -176,5 +178,8 @@ get_inst_features <- function( data, train = TRUE ){
     }
   }
   row.names(featureSet) <- NULL
+  if( train ){
+    featureSet$class <- factor( featureSet$class, levels = levels, labels = classes)
+  }
   return(featureSet)
 }
