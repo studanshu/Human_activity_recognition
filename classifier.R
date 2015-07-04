@@ -40,6 +40,13 @@ main_classifier <- function( user ){
   db_name = 'test'
   con <- dbConnect(RMySQL::MySQL(), group = db_name)
   
+  if( user == "Rdata" ){
+    test_sample <- fetch_demo_data()
+    result = classify(method='inst', test_sample )
+    dbDisconnect(con)
+    return( toJSON(result) )
+  }
+  
   result <- list()
   
   # Get session info for the user

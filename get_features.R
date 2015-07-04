@@ -58,10 +58,11 @@ std <-function( window, train = TRUE ){
 }
 
 zcr <- function( signal, mean = 0 ){
+  n = length(signal)
   signSignal = sign(signal - mean)
   if(length(signSignal) > 1){
     z = head(signSignal, n=-1) - tail(signSignal, n=-1)
-    return( sum(z != 0) )  
+    return( sum(z != 0) / n )
   }
   else{
     return(0)

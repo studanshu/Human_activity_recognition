@@ -68,3 +68,31 @@ fetch_test_data <- function(db_name = "test", user =  NULL, lowid, highid)
   
   return(test)
 }
+
+fetch_demo_data <- function(db_name = "test")
+{
+  
+  # Connect to mysql server
+  con <- dbConnect(RMySQL::MySQL(), group = db_name)
+  
+  # Get accelerometer data of the user
+  query = paste0("SELECT * FROM DataCollection_sensor WHERE username = 'Rdata'  AND sensor = '1' ORDER BY time DESC LIMIT 15;") 
+  res<-dbSendQuery(con, query)
+  data <- fetch(res, n = -1)
+  
+  user = "Rdata"
+  test <- list()
+  test[[user]] <- list()
+  
+  data$date <- as.POSIXct(data$time, tz="")
+  data$time <- as.numeric(data$date)
+  data$V1 <- data$time
+  names(data)[names(data)=="value1"] <- "V2"
+  names(data)[names(data)=="value2"] <- "V3"
+  names(data)[names(data)=="value3"] <- "V4"
+  test[[user]][[1]] <- data
+  
+  dbDisconnect(con)
+  
+  return(test)
+}
