@@ -21,8 +21,8 @@ crossval <- function(form, x, fold = 10, cp = 0.01) {
     # It depends on which classification method you use
     fit <- rpart(form, data = x[k != i, ], method = "class")
     fcast <- predict(fit, newdata = x[k == i, ], type = "class")
-    cm <- table(x[k == i, y], fcast)
-    accuracy <- (cm[1, 1] + cm[2, 2])/sum(cm)
+    cm <- ifelse(x[k == i, y] == fcast,1,0)
+    accuracy <- sum(cm)/length(cm)
     vec.accuracy[i] <- accuracy
   }
   avg.accuracy <- mean(vec.accuracy)
