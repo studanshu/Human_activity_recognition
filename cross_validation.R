@@ -7,6 +7,7 @@
 source('get_features.R')
 source('fetch_data.R')
 library("rpart")
+library("e1071")
 
 crossval <- function(form, x, fold = 10, cp = 0.01) {
   n <- nrow(x)
@@ -18,8 +19,15 @@ crossval <- function(form, x, fold = 10, cp = 0.01) {
   y <- unlist(strsplit(as.character(form), " "))[2]
   vec.accuracy <- vector(length = fold)
   for (i in seq(fold)) {
-    # It depends on which classification method you use
+    
+    # Decision Tree
     fit <- rpart(form, data = x[k != i, ], method = "class")
+    
+    # SVM
+    # fit <- svm(form, data = x[k != i, ])
+    
+    print(fit)
+    
     fcast <- predict(fit, newdata = x[k == i, ], type = "class")
     cm <- ifelse(x[k == i, y] == fcast,1,0)
     accuracy <- sum(cm)/length(cm)
