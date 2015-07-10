@@ -1,6 +1,6 @@
 require("RMySQL")
 source("helper.R")
-# require("ggplot2")
+require("ggplot2")
 
 fetch_train_data <- function(data_path='data')
 {
@@ -21,7 +21,7 @@ fetch_train_data <- function(data_path='data')
       data$date <- as.POSIXct(data$time, origin="1970-01-01")
       activity_data[[j]] <- data
       
-#       # visualize ggplot
+      # visualize ggplot
 #       p <- ggplot(data=data, aes(x=time)) +
 #         geom_line(aes(y=V2, color="x"), size = 1, lineend = "round") +
 #         geom_line(aes(y=V3, color="y"), size = 1, lineend = "round") +
@@ -63,7 +63,19 @@ fetch_test_data <- function(db_name = "test", user =  NULL, lowid, highid)
   names(data)[names(data)=="value2"] <- "V3"
   names(data)[names(data)=="value3"] <- "V4"
   test[[user]][[1]] <- data
-    
+  
+#   # visualize ggplot
+#   p <- ggplot(data=data, aes(x=time)) +
+#     geom_line(aes(y=V2, color="x"), size = 1, lineend = "round") +
+#     geom_line(aes(y=V3, color="y"), size = 1, lineend = "round") +
+#     geom_line(aes(y=V4, color="z"), size = 1, lineend = "round") +
+#     scale_color_manual("",
+#                        breaks = c("x", "y", "z"),
+#                        values = c("blue", "red", "green")) +
+#     theme_bw(base_size=14) +
+#     ggtitle("Rdata")
+#   print(p)
+  
   dbDisconnect(con)
   
   return(test)
@@ -76,7 +88,7 @@ fetch_demo_data <- function(db_name = "test")
   con <- dbConnect(RMySQL::MySQL(), group = db_name)
   
   # Get accelerometer data of the user
-  query = paste0("SELECT * FROM DataCollection_sensor WHERE username = 'Rdata'  AND sensor = '1' ORDER BY time DESC LIMIT 15;") 
+  query = paste0("SELECT * FROM DataCollection_sensor WHERE username = 'Rdata'  AND sensor = '1' ORDER BY time DESC LIMIT 20;") 
   res<-dbSendQuery(con, query)
   data <- fetch(res, n = -1)
   
@@ -92,7 +104,19 @@ fetch_demo_data <- function(db_name = "test")
   names(data)[names(data)=="value3"] <- "V4"
   test[[user]][[1]] <- data
   
-  dbDisconnect(con)
+  # visualize ggplot
+#   p <- ggplot(data=data, aes(x=time)) +
+#     geom_line(aes(y=V2, color="x"), size = 1, lineend = "round") +
+#     geom_line(aes(y=V3, color="y"), size = 1, lineend = "round") +
+#     geom_line(aes(y=V4, color="z"), size = 1, lineend = "round") +
+#     scale_color_manual("",
+#                        breaks = c("x", "y", "z"),
+#                        values = c("blue", "red", "green")) +
+#     theme_bw(base_size=14) +
+#     ggtitle("Rdata")
+#   print(p)
+#   
+#   dbDisconnect(con)
   
   return(test)
 }

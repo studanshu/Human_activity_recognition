@@ -4,4 +4,5 @@
 .my.cnf
 data/*
 test_data/*
+extra/*
 *.RData
