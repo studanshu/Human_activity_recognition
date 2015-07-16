@@ -21,10 +21,10 @@ crossval <- function(form, x, fold = 10, cp = 0.01) {
   for (i in seq(fold)) {
     
     # Decision Tree
-    fit <- rpart(form, data = x[k != i, ], method = "class")
+    # fit <- rpart(form, data = x[k != i, ], method = "class")
     
     # SVM
-    # fit <- svm(form, data = x[k != i, ])
+    fit <- svm(form, data = x[k != i, ])
     
     print(fit)
     
@@ -42,4 +42,5 @@ crossval <- function(form, x, fold = 10, cp = 0.01) {
 train_data <- fetch_train_data()
 features <- get_inst_features(train_data)
 features <- features[sample(nrow(features)),]
-result <- crossval(class ~ ., features)
+formula <- class ~ meanx + meany + meanz + variancex + variancey + variancez + differencex + differencey + differencez + zcrossx + zcrossy + zcrossz
+result <- crossval(formula, features)
