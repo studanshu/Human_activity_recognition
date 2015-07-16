@@ -8,6 +8,8 @@ source('get_features.R')
 source('fetch_data.R')
 library("rpart")
 library("e1071")
+library("neuralnet")
+library("randomForest")
 
 crossval <- function(form, x, fold = 10, cp = 0.01) {
   n <- nrow(x)
@@ -20,15 +22,26 @@ crossval <- function(form, x, fold = 10, cp = 0.01) {
   vec.accuracy <- vector(length = fold)
   for (i in seq(fold)) {
     
+    data = x[k != i, ]
+    testdata = x[k == i, ]
+    
     # Decision Tree
-    # fit <- rpart(form, data = x[k != i, ], method = "class")
+    fit <- rpart(form, data, method = "class")
     
     # SVM
-    fit <- svm(form, data = x[k != i, ])
+    # fit <- svm(form, data)
     
-    print(fit)
+    # Random Forest
+    # fit <- randomForest(form, data)
     
-    fcast <- predict(fit, newdata = x[k == i, ], type = "class")
+    # Neural Network
+    # fit <- neuralnet(form, data, hidden=3)
+    
+    # print(fit)
+    
+    # fcast <- compute(fit, testdata)$net.result
+    fcast <- predict(fit, testdata, type = "class")
+    
     cm <- ifelse(x[k == i, y] == fcast,1,0)
     accuracy <- sum(cm)/length(cm)
     vec.accuracy[i] <- accuracy
